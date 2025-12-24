@@ -72,7 +72,3 @@ Contacto y soporte
 ------------------
 - Abre un issue en este repositorio para reportar errores, pedir mejoras o solicitar clarificaciones.
 - Para consultas directas: usa el perfil de GitHub (https://github.com/Gerardo7775).
-
-Notas finales
--------------
-Este README es una plantilla sugerida; ajusta las secciones (badges, comandos, rutas) según las herramientas y convenciones específicas de tu proyecto. ¿Quieres que lo adapte con enlaces directos (sitio publicado, workflows exactos o licencia) viendo los archivos del repo? Puedo hacerlo si deseas.
