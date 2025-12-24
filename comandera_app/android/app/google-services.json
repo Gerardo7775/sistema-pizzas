@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "131289047670",
+    "project_id": "sistema-pizzas",
+    "storage_bucket": "sistema-pizzas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:131289047670:android:0f38f70d084fe403933557",
+        "android_client_info": {
+          "package_name": "com.example.comandera_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB07BcYThio5H5JJcN55vHDLQObNe4DHpQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
