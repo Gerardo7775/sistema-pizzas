@@ -13,9 +13,11 @@ class MainLayout extends StatelessWidget {
     if (location.startsWith('/inventario')) {
       selectedIndex = 1;
     } else if (location.startsWith('/recetas')) {
-      selectedIndex = 2; // Placeholder
+      selectedIndex = 2;
     } else if (location.startsWith('/contabilidad')) {
-      selectedIndex = 3; // Placeholder
+      selectedIndex = 3;
+    } else if (location.startsWith('/configuracion')) {
+      selectedIndex = 4;
     }
 
     return Scaffold(
@@ -37,6 +39,9 @@ class MainLayout extends StatelessWidget {
                 case 3:
                   context.go('/contabilidad');
                   break;
+                case 4:
+                  context.go('/configuracion');
+                  break;
               }
             },
             labelType: NavigationRailLabelType.all,
@@ -56,6 +61,10 @@ class MainLayout extends StatelessWidget {
               NavigationRailDestination(
                 icon: Icon(Icons.attach_money),
                 label: Text('Contabilidad'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.settings),
+                label: Text('Configuración'),
               ),
             ],
           ),

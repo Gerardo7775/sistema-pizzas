@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../application/providers/inventario_provider.dart';
+import '../../core/entities/insumo.dart';
 
 class InventarioPage extends ConsumerWidget {
   const InventarioPage({super.key});

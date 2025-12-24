@@ -12,7 +12,7 @@ const saveConfigSchema = z.object({
     moneda: z.string().default('MXN')
 });
 
-export const guardarConfiguracion = functions.https.onCall(async (data, context) => {
+export const guardarConfiguracion = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
     try {
         const parsed = saveConfigSchema.parse(data);
         await configuracionSistema.guardarConfiguracion(parsed);
@@ -22,7 +22,7 @@ export const guardarConfiguracion = functions.https.onCall(async (data, context)
     }
 });
 
-export const obtenerConfiguracion = functions.https.onCall(async (data, context) => {
+export const obtenerConfiguracion = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
     try {
         const config = await configuracionSistema.obtenerConfiguracion();
         return { config };

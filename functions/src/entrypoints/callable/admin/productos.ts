@@ -18,7 +18,7 @@ const createProductoSchema = z.object({
     receta: z.array(recetaItemSchema)
 });
 
-export const crearProducto = functions.https.onCall(async (data, context) => {
+export const crearProducto = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
     try {
         const parsed = createProductoSchema.parse(data);
         const id = await gestionarProductos.crearProducto(parsed);
@@ -28,7 +28,7 @@ export const crearProducto = functions.https.onCall(async (data, context) => {
     }
 });
 
-export const listarProductos = functions.https.onCall(async (data, context) => {
+export const listarProductos = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
     try {
         const productos = await gestionarProductos.listarProductos();
         return { productos };

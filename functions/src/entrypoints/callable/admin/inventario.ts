@@ -23,7 +23,7 @@ const updateInsumoSchema = z.object({
     activo: z.boolean().optional()
 });
 
-export const crearInsumo = functions.https.onCall(async (data, context) => {
+export const crearInsumo = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
     // if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'User must be logged in.');
     // TODO: Add role check for admin
 
@@ -37,7 +37,7 @@ export const crearInsumo = functions.https.onCall(async (data, context) => {
     }
 });
 
-export const actualizarInsumo = functions.https.onCall(async (data, context) => {
+export const actualizarInsumo = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
     try {
         const parsed = updateInsumoSchema.parse(data);
         await gestionarInventario.actualizarInsumo(parsed.id, parsed);
@@ -47,7 +47,7 @@ export const actualizarInsumo = functions.https.onCall(async (data, context) => 
     }
 });
 
-export const listarInsumos = functions.https.onCall(async (data, context) => {
+export const listarInsumos = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
     try {
         const insumos = await gestionarInventario.listarInsumos();
         return { insumos };

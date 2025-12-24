@@ -79,7 +79,7 @@ class _ConfiguracionPageState extends ConsumerState<ConfiguracionPage> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      value: _moneda,
+                      initialValue: _moneda,
                       decoration: const InputDecoration(labelText: 'Moneda'),
                       items: const [
                         DropdownMenuItem(

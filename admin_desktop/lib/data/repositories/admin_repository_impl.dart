@@ -1,4 +1,4 @@
-import 'package:cloud_functions/cloud_functions.dart';
+import 'package:cloud_functions/cloud_functions.dart' hide Result;
 import '../../core/entities/insumo.dart';
 import '../../core/entities/producto.dart';
 import '../../core/entities/configuracion.dart';

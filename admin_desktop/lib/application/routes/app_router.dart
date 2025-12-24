@@ -5,6 +5,7 @@ import '../../presentation/pages/recetas_page.dart';
 import '../../presentation/pages/contabilidad_page.dart';
 import '../../presentation/pages/login_page.dart';
 import '../../presentation/pages/register_page.dart';
+import '../../presentation/pages/configuracion_page.dart';
 import '../../presentation/widgets/main_layout.dart';
 
 final appRouter = GoRouter(
@@ -37,6 +38,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/contabilidad',
           builder: (context, state) => const ContabilidadPage(),
+        ),
+        GoRoute(
+          path: '/configuracion',
+          builder: (context, state) => const ConfiguracionPage(),
         ),
       ],
     ),
