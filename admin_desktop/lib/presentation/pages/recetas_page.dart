@@ -21,9 +21,7 @@ class RecetasPage extends ConsumerWidget {
             },
           ),
           FilledButton.icon(
-            onPressed: () {
-              // TODO: Add Product Dialog
-            },
+            onPressed: () => _showProductoDialog(context, ref),
             icon: const Icon(Icons.add),
             label: const Text('Nuevo Producto'),
           ),
@@ -43,8 +41,8 @@ class RecetasPage extends ConsumerWidget {
                 columns: const [
                   DataColumn2(label: Text('Producto'), size: ColumnSize.L),
                   DataColumn(label: Text('Categoría')),
-                  DataColumn(label: Text('Precio Base'), numeric: true),
-                  DataColumn(label: Text('Ingredientes (Receta)')),
+                  DataColumn(label: Text('Precio'), numeric: true),
+                  DataColumn(label: Text('Receta')),
                   DataColumn(label: Text('Acciones')),
                 ],
                 rows: List<DataRow>.generate(productosState.productos.length, (
@@ -61,19 +59,18 @@ class RecetasPage extends ConsumerWidget {
                           visualDensity: VisualDensity.compact,
                         ),
                       ),
-                      DataCell(
-                        Text('\$${producto.precioBase.toStringAsFixed(2)}'),
-                      ),
+                      DataCell(Text('\$${producto.precio.toStringAsFixed(2)}')),
                       DataCell(Text('$numIngredientes insumos')),
                       DataCell(
                         Row(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.edit_note, size: 20),
-                              onPressed: () {
-                                // TODO: Edit Recipe
-                              },
-                              tooltip: 'Editar Receta',
+                              icon: const Icon(Icons.edit, size: 20),
+                              onPressed: () => _showProductoDialog(
+                                context,
+                                ref,
+                                producto: producto,
+                              ),
                             ),
                           ],
                         ),
@@ -83,6 +80,187 @@ class RecetasPage extends ConsumerWidget {
                 }),
               ),
             ),
+    );
+  }
+
+  void _showProductoDialog(
+    BuildContext context,
+    WidgetRef ref, {
+    Producto? producto,
+  }) {
+    final nombreController = TextEditingController(text: producto?.nombre);
+    final descController = TextEditingController(text: producto?.descripcion);
+    final precioController = TextEditingController(
+      text: producto?.precio.toString() ?? '0',
+    );
+    final catController = TextEditingController(
+      text: producto?.categoria ?? 'pizza',
+    );
+
+    // Initial receta copy
+    final List<RecetaItem> receta = List.from(producto?.receta ?? []);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final inventario = ref.watch(inventarioProvider).insumos;
+
+            return AlertDialog(
+              title: Text(
+                producto == null ? 'Nuevo Producto' : 'Editar Producto',
+              ),
+              content: SizedBox(
+                width: 500,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: nombreController,
+                        decoration: const InputDecoration(labelText: 'Nombre'),
+                      ),
+                      TextField(
+                        controller: catController,
+                        decoration: const InputDecoration(
+                          labelText: 'Categoría',
+                        ),
+                      ),
+                      TextField(
+                        controller: precioController,
+                        decoration: const InputDecoration(labelText: 'Precio'),
+                        keyboardType: TextInputType.number,
+                      ),
+                      TextField(
+                        controller: descController,
+                        decoration: const InputDecoration(
+                          labelText: 'Descripción',
+                        ),
+                        maxLines: 2,
+                      ),
+                      const Divider(),
+                      const Text(
+                        'Receta (Insumos)',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      ...receta.map((item) {
+                        final insumo = inventario.firstWhere(
+                          (i) => i.id == item.insumoId,
+                          orElse: () => Insumo(
+                            id: item.insumoId,
+                            nombre: '?',
+                            unidad: '',
+                            stockActual: 0,
+                            stockMinimo: 0,
+                            costoUnitario: 0,
+                          ),
+                        );
+                        return ListTile(
+                          title: Text(insumo.nombre),
+                          subtitle: Text(
+                            'Cantidad: ${item.cantidad} ${insumo.unidad}',
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () =>
+                                setState(() => receta.remove(item)),
+                          ),
+                        );
+                      }),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          labelText: 'Agregar Insumo',
+                        ),
+                        items: inventario
+                            .where(
+                              (i) => !receta.any((r) => r.insumoId == i.id),
+                            )
+                            .map((i) {
+                              return DropdownMenuItem(
+                                value: i.id,
+                                child: Text(i.nombre),
+                              );
+                            })
+                            .toList(),
+                        onChanged: (id) {
+                          if (id != null) {
+                            _showAddInsumoToRecipeDialog(context, id, (
+                              cantidad,
+                            ) {
+                              setState(
+                                () => receta.add(
+                                  RecetaItem(insumoId: id, cantidad: cantidad),
+                                ),
+                              );
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    final p = Producto(
+                      id: producto?.id ?? '',
+                      nombre: nombreController.text,
+                      descripcion: descController.text,
+                      categoria: catController.text,
+                      precio: double.tryParse(precioController.text) ?? 0,
+                      receta: receta,
+                    );
+                    ref.read(productosProvider.notifier).guardarProducto(p);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Guardar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showAddInsumoToRecipeDialog(
+    BuildContext context,
+    String insumoId,
+    Function(double) onAdd,
+  ) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cantidad para la Receta'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(labelText: 'Cantidad'),
+          keyboardType: TextInputType.number,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final val = double.tryParse(controller.text) ?? 0;
+              if (val > 0) onAdd(val);
+              Navigator.pop(context);
+            },
+            child: const Text('Añadir'),
+          ),
+        ],
+      ),
     );
   }
 }

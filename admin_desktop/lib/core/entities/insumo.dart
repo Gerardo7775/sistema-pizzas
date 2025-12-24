@@ -1,13 +1,10 @@
-import 'package:equatable/equatable.dart';
-
-class Insumo extends Equatable {
+class Insumo {
   final String id;
   final String nombre;
-  final String unidad; // 'kg', 'pieza', 'litro'
+  final String unidad;
   final double stockActual;
   final double stockMinimo;
-  final DateTime? fechaUltimaCompra;
-  final int? vidaUtilDias;
+  final double costoUnitario;
   final bool activo;
 
   const Insumo({
@@ -16,42 +13,31 @@ class Insumo extends Equatable {
     required this.unidad,
     required this.stockActual,
     required this.stockMinimo,
-    this.fechaUltimaCompra,
-    this.vidaUtilDias,
+    required this.costoUnitario,
     this.activo = true,
   });
 
-  Insumo copyWith({
-    String? id,
-    String? nombre,
-    String? unidad,
-    double? stockActual,
-    double? stockMinimo,
-    DateTime? fechaUltimaCompra,
-    int? vidaUtilDias,
-    bool? activo,
-  }) {
+  factory Insumo.fromJson(Map<String, dynamic> json) {
     return Insumo(
-      id: id ?? this.id,
-      nombre: nombre ?? this.nombre,
-      unidad: unidad ?? this.unidad,
-      stockActual: stockActual ?? this.stockActual,
-      stockMinimo: stockMinimo ?? this.stockMinimo,
-      fechaUltimaCompra: fechaUltimaCompra ?? this.fechaUltimaCompra,
-      vidaUtilDias: vidaUtilDias ?? this.vidaUtilDias,
-      activo: activo ?? this.activo,
+      id: json['id'] ?? '',
+      nombre: json['nombre'] ?? '',
+      unidad: json['unidad'] ?? '',
+      stockActual: (json['stockActual'] as num).toDouble(),
+      stockMinimo: (json['stockMinimo'] as num).toDouble(),
+      costoUnitario: (json['costoUnitario'] as num).toDouble(),
+      activo: json['activo'] ?? true,
     );
   }
 
-  @override
-  List<Object?> get props => [
-    id,
-    nombre,
-    unidad,
-    stockActual,
-    stockMinimo,
-    fechaUltimaCompra,
-    vidaUtilDias,
-    activo,
-  ];
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nombre': nombre,
+      'unidad': unidad,
+      'stockActual': stockActual,
+      'stockMinimo': stockMinimo,
+      'costoUnitario': costoUnitario,
+      'activo': activo,
+    };
+  }
 }

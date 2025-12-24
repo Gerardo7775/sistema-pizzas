@@ -1,67 +1,61 @@
-import 'package:equatable/equatable.dart';
-
-class RecetaItem extends Equatable {
+class RecetaItem {
   final String insumoId;
-  final double cantidad; // Cantidad por unidad de producto
-  final String unidad; // Unidad del insumo (cacheada para UI)
+  final double cantidad;
 
-  const RecetaItem({
-    required this.insumoId,
-    required this.cantidad,
-    required this.unidad,
-  });
+  RecetaItem({required this.insumoId, required this.cantidad});
 
-  @override
-  List<Object?> get props => [insumoId, cantidad, unidad];
-}
-
-class Producto extends Equatable {
-  final String id;
-  final String nombre;
-  final String categoria; // 'pizza', 'bebida', 'postre'
-  final double precioBase;
-  final List<String> especialidades; // 'Chica', 'Mediana', 'Grande' (si aplica)
-  final List<RecetaItem> receta; // Insumos requeridos
-  final bool activo;
-
-  const Producto({
-    required this.id,
-    required this.nombre,
-    required this.categoria,
-    required this.precioBase,
-    this.especialidades = const [],
-    this.receta = const [],
-    this.activo = true,
-  });
-
-  Producto copyWith({
-    String? id,
-    String? nombre,
-    String? categoria,
-    double? precioBase,
-    List<String>? especialidades,
-    List<RecetaItem>? receta,
-    bool? activo,
-  }) {
-    return Producto(
-      id: id ?? this.id,
-      nombre: nombre ?? this.nombre,
-      categoria: categoria ?? this.categoria,
-      precioBase: precioBase ?? this.precioBase,
-      especialidades: especialidades ?? this.especialidades,
-      receta: receta ?? this.receta,
-      activo: activo ?? this.activo,
+  factory RecetaItem.fromJson(Map<String, dynamic> json) {
+    return RecetaItem(
+      insumoId: json['insumoId'],
+      cantidad: (json['cantidad'] as num).toDouble(),
     );
   }
 
-  @override
-  List<Object?> get props => [
-    id,
-    nombre,
-    categoria,
-    precioBase,
-    especialidades,
-    receta,
-    activo,
-  ];
+  Map<String, dynamic> toJson() => {'insumoId': insumoId, 'cantidad': cantidad};
+}
+
+class Producto {
+  final String id;
+  final String nombre;
+  final String descripcion;
+  final String categoria;
+  final double precio;
+  final List<RecetaItem> receta;
+  final bool activo;
+
+  Producto({
+    required this.id,
+    required this.nombre,
+    required this.descripcion,
+    required this.categoria,
+    required this.precio,
+    required this.receta,
+    this.activo = true,
+  });
+
+  factory Producto.fromJson(Map<String, dynamic> json) {
+    return Producto(
+      id: json['id'] ?? '',
+      nombre: json['nombre'],
+      descripcion: json['descripcion'],
+      categoria: json['categoria'] ?? '',
+      precio: (json['precio'] as num).toDouble(),
+      receta: (json['receta'] as List)
+          .map((e) => RecetaItem.fromJson(e))
+          .toList(),
+      activo: json['activo'] ?? true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nombre': nombre,
+      'descripcion': descripcion,
+      'categoria': categoria,
+      'precio': precio,
+      'receta': receta.map((e) => e.toJson()).toList(),
+      'activo': activo,
+    };
+  }
 }

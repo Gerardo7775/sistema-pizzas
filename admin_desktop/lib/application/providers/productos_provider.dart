@@ -1,12 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/entities/producto.dart';
-import '../../core/repositories/productos_repository.dart';
-import '../../data/repositories/productos_repository_mock.dart';
-
-// Provider del Repositorio
-final productosRepositoryProvider = Provider<ProductosRepository>((ref) {
-  return ProductosRepositoryMock();
-});
+import '../../core/repositories/admin_repository.dart';
+import 'repository_providers.dart';
 
 // Estado
 class ProductosState {
@@ -23,33 +18,38 @@ class ProductosState {
 
 // Controller
 class ProductosController extends Notifier<ProductosState> {
-  late final ProductosRepository _repository;
+  late final AdminRepository _repository;
 
   @override
   ProductosState build() {
-    _repository = ref.watch(productosRepositoryProvider);
+    _repository = ref.watch(adminRepositoryProvider);
     Future.microtask(() => cargarProductos());
     return ProductosState(isLoading: true);
   }
 
   Future<void> cargarProductos() async {
     state = ProductosState(isLoading: true, productos: state.productos);
-    try {
-      final productos = await _repository.getProductos();
-      state = ProductosState(isLoading: false, productos: productos);
-    } catch (e) {
-      state = ProductosState(isLoading: false, error: e.toString());
+    final result = await _repository.listarProductos();
+    if (result.isSuccess) {
+      state = ProductosState(isLoading: false, productos: result.value!);
+    } else {
+      state = ProductosState(
+        isLoading: false,
+        error: result.error,
+        productos: state.productos,
+      );
     }
   }
 
   Future<void> guardarProducto(Producto producto) async {
-    try {
-      await _repository.saveProducto(producto);
+    state = ProductosState(isLoading: true, productos: state.productos);
+    final result = await _repository.crearProducto(producto);
+    if (result.isSuccess) {
       await cargarProductos();
-    } catch (e) {
+    } else {
       state = ProductosState(
         isLoading: false,
-        error: e.toString(),
+        error: result.error,
         productos: state.productos,
       );
     }

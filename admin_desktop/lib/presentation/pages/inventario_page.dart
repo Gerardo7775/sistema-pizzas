@@ -21,9 +21,7 @@ class InventarioPage extends ConsumerWidget {
             },
           ),
           FilledButton.icon(
-            onPressed: () {
-              // TODO: Abrir dialogo de nuevo insumo
-            },
+            onPressed: () => _showInsumoDialog(context, ref),
             icon: const Icon(Icons.add),
             label: const Text('Nuevo Insumo'),
           ),
@@ -77,8 +75,8 @@ class InventarioPage extends ConsumerWidget {
                           ),
                           decoration: BoxDecoration(
                             color: bajoStock
-                                ? Colors.red.withValues(alpha: 0.1)
-                                : Colors.green.withValues(alpha: 0.1),
+                                ? Colors.red.withAlpha(25)
+                                : Colors.green.withAlpha(25),
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(
                               color: bajoStock ? Colors.red : Colors.green,
@@ -98,7 +96,11 @@ class InventarioPage extends ConsumerWidget {
                           children: [
                             IconButton(
                               icon: const Icon(Icons.edit, size: 20),
-                              onPressed: () {},
+                              onPressed: () => _showInsumoDialog(
+                                context,
+                                ref,
+                                insumo: insumo,
+                              ),
                             ),
                             IconButton(
                               icon: const Icon(Icons.history, size: 20),
@@ -112,6 +114,97 @@ class InventarioPage extends ConsumerWidget {
                 }),
               ),
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showInsumoDialog(context, ref),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showInsumoDialog(
+    BuildContext context,
+    WidgetRef ref, {
+    Insumo? insumo,
+  }) {
+    final nombreController = TextEditingController(text: insumo?.nombre);
+    final unidadController = TextEditingController(
+      text: insumo?.unidad ?? 'kg',
+    );
+    final stockController = TextEditingController(
+      text: insumo?.stockActual.toString() ?? '0',
+    );
+    final minimoController = TextEditingController(
+      text: insumo?.stockMinimo.toString() ?? '0',
+    );
+    final costoController = TextEditingController(
+      text: insumo?.costoUnitario.toString() ?? '0',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(insumo == null ? 'Nuevo Insumo' : 'Editar Insumo'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nombreController,
+                decoration: const InputDecoration(labelText: 'Nombre'),
+              ),
+              TextField(
+                controller: unidadController,
+                decoration: const InputDecoration(
+                  labelText: 'Unidad (kg, litro, pieza)',
+                ),
+              ),
+              TextField(
+                controller: stockController,
+                decoration: const InputDecoration(labelText: 'Stock Actual'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: minimoController,
+                decoration: const InputDecoration(labelText: 'Stock Mínimo'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: costoController,
+                decoration: const InputDecoration(labelText: 'Costo Unitario'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final newInsumo = Insumo(
+                id: insumo?.id ?? '',
+                nombre: nombreController.text,
+                unidad: unidadController.text,
+                stockActual: double.tryParse(stockController.text) ?? 0,
+                stockMinimo: double.tryParse(minimoController.text) ?? 0,
+                costoUnitario: double.tryParse(costoController.text) ?? 0,
+              );
+
+              if (insumo == null) {
+                ref.read(inventarioProvider.notifier).agregarInsumo(newInsumo);
+              } else {
+                ref
+                    .read(inventarioProvider.notifier)
+                    .actualizarInsumo(insumo.id, newInsumo.toJson());
+              }
+              Navigator.pop(context);
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
     );
   }
 }
