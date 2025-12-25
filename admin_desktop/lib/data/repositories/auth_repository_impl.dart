@@ -87,7 +87,7 @@ class AuthRepositoryImpl implements AuthRepository {
   String _mapFirebaseError(String code) {
     switch (code) {
       case 'user-not-found':
-        return 'No existe un usuario con este correo electrónico.';
+        return 'No se ha encontrado cuenta con este correo. Debes registrarte.';
       case 'wrong-password':
         return 'Contraseña incorrecta.';
       case 'email-already-in-use':
@@ -95,7 +95,7 @@ class AuthRepositoryImpl implements AuthRepository {
       case 'weak-password':
         return 'La contraseña es muy débil. Debe tener al menos 6 caracteres.';
       case 'invalid-email':
-        return 'El formato del correo electrónico no es válido.';
+        return 'El correo electrónico no existe o es inválido. Por favor, revísalo.';
       case 'too-many-requests':
         return 'Demasiados intentos. Por favor, intenta de nuevo más tarde.';
       case 'network-request-failed':

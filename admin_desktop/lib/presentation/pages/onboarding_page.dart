@@ -99,50 +99,46 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withAlpha(50),
-              Theme.of(context).colorScheme.surface,
+      backgroundColor: colorScheme.surface,
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 900, maxHeight: 700),
+          margin: const EdgeInsets.all(40),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.onSurface.withValues(alpha: 0.05),
+                blurRadius: 40,
+                offset: const Offset(0, 10),
+              ),
             ],
           ),
-        ),
-        child: Center(
-          child: Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Container(
-              width: 800,
-              height: 600,
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 32),
-                  Expanded(
-                    child: PageView(
-                      controller: _pageController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        _buildStep1(),
-                        _buildStep2(),
-                        _buildStep3(),
-                        _buildStep4(),
-                        _buildStep5(),
-                      ],
-                    ),
+          child: Column(
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 48),
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      _buildStep1(),
+                      _buildStep2(),
+                      _buildStep3(),
+                      _buildStep4(),
+                      _buildStep5(),
+                    ],
                   ),
-                  const SizedBox(height: 32),
-                  _buildFooter(),
-                ],
+                ),
               ),
-            ),
+              _buildFooter(),
+            ],
           ),
         ),
       ),
@@ -150,6 +146,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   Widget _buildHeader() {
+    final colorScheme = Theme.of(context).colorScheme;
     final titles = [
       'Bienvenido a tu Pizzería',
       'Configura tu Inventario',
@@ -157,42 +154,63 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       'Alertas de Sistema',
       '¡Todo Listo!',
     ];
-    return Column(
-      children: [
-        LinearProgressIndicator(
-          value: (_currentStep + 1) / 5,
-          borderRadius: BorderRadius.circular(10),
-          minHeight: 8,
-        ),
-        const SizedBox(height: 24),
-        Text(
-          titles[_currentStep],
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(48, 40, 48, 0),
+      child: Column(
+        children: [
+          Row(
+            children: List.generate(
+              5,
+              (index) => Expanded(
+                child: Container(
+                  height: 6,
+                  margin: EdgeInsets.only(right: index == 4 ? 0 : 8),
+                  decoration: BoxDecoration(
+                    color: index <= _currentStep
+                        ? colorScheme.primary
+                        : colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 40),
+          Text(
+            titles[_currentStep],
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: 28,
+              letterSpacing: -0.5,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildStep1() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.restaurant, size: 80, color: Colors.deepOrange),
-        const SizedBox(height: 24),
+        Icon(Icons.local_pizza_rounded, size: 80, color: colorScheme.primary),
+        const SizedBox(height: 40),
         TextField(
           controller: _systemNameController,
           decoration: const InputDecoration(
             labelText: 'Nombre del Negocio',
             hintText: 'Ej. Pizza Nostra',
+            prefixIcon: Icon(Icons.store_rounded),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         DropdownButtonFormField<String>(
           initialValue: _selectedCurrency,
-          decoration: const InputDecoration(labelText: 'Moneda'),
+          decoration: const InputDecoration(
+            labelText: 'Moneda del Sistema',
+            prefixIcon: Icon(Icons.payments_rounded),
+          ),
           items: const [
             DropdownMenuItem(value: 'MXN', child: Text('Peso Mexicano (MXN)')),
             DropdownMenuItem(value: 'USD', child: Text('Dólar (USD)')),
@@ -204,39 +222,50 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   Widget _buildStep2() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Agrega los insumos básicos que utilizas (Harina, Queso, Tomate...)',
+        Text(
+          'Comencemos agregando los insumos básicos.',
+          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         Row(
           children: [
             Expanded(
+              flex: 3,
               child: TextField(
                 controller: _insumoNameController,
-                decoration: const InputDecoration(labelText: 'Insumo'),
+                decoration: const InputDecoration(
+                  labelText: 'Insumo',
+                  prefixIcon: Icon(Icons.egg_outlined),
+                ),
               ),
             ),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 80,
+            const SizedBox(width: 12),
+            Expanded(
               child: TextField(
                 controller: _insumoQtyController,
-                decoration: const InputDecoration(labelText: 'Cant.'),
+                decoration: const InputDecoration(labelText: 'Stock'),
                 keyboardType: TextInputType.number,
               ),
             ),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 80,
+            const SizedBox(width: 12),
+            Expanded(
               child: TextField(
                 controller: _insumoUnitController,
                 decoration: const InputDecoration(labelText: 'Unid.'),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             IconButton.filled(
+              style: IconButton.styleFrom(
+                padding: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
               onPressed: () {
                 if (_insumoNameController.text.isNotEmpty) {
                   setState(() {
@@ -256,19 +285,33 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   });
                 }
               },
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         Expanded(
-          child: ListView.builder(
+          child: ListView.separated(
             itemCount: _tempInsumos.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final item = _tempInsumos[index];
               return ListTile(
-                title: Text(item.nombre),
-                trailing: Text('${item.stockActual} ${item.unidad}'),
+                tileColor: colorScheme.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                title: Text(
+                  item.nombre,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                trailing: Text(
+                  '${item.stockActual} ${item.unidad}',
+                  style: TextStyle(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 onLongPress: () => setState(() => _tempInsumos.removeAt(index)),
               );
             },
@@ -279,31 +322,43 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   Widget _buildStep3() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Configura tus productos estrella'),
-        const SizedBox(height: 16),
+        Text(
+          'Agrega tus productos principales al catálogo.',
+          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
+        ),
+        const SizedBox(height: 24),
         Row(
           children: [
             Expanded(
+              flex: 3,
               child: TextField(
                 controller: _prodNameController,
                 decoration: const InputDecoration(
-                  labelText: 'Nombre del Producto',
+                  labelText: 'Producto',
+                  prefixIcon: Icon(Icons.restaurant_menu_rounded),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 100,
+            const SizedBox(width: 12),
+            Expanded(
               child: TextField(
                 controller: _prodPriceController,
                 decoration: const InputDecoration(labelText: 'Precio'),
                 keyboardType: TextInputType.number,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             IconButton.filled(
+              style: IconButton.styleFrom(
+                padding: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
               onPressed: () {
                 if (_prodNameController.text.isNotEmpty) {
                   setState(() {
@@ -322,18 +377,26 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   });
                 }
               },
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         Expanded(
-          child: ListView.builder(
+          child: ListView.separated(
             itemCount: _tempProductos.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final prod = _tempProductos[index];
               return ListTile(
-                title: Text(prod.nombre),
+                tileColor: colorScheme.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                title: Text(
+                  prod.nombre,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 subtitle: Text('\$${prod.precio}'),
                 onLongPress: () =>
                     setState(() => _tempProductos.removeAt(index)),
@@ -346,24 +409,32 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   Widget _buildStep4() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
+        Text(
           '¿A qué nivel de stock debemos avisarte?',
-          style: TextStyle(fontSize: 18),
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 18, color: colorScheme.onSurface),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 48),
         Text(
           _globalThreshold.toStringAsFixed(1),
-          style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 64,
+            fontWeight: FontWeight.w900,
+            color: colorScheme.primary,
+          ),
         ),
+        const SizedBox(height: 24),
         Slider(
           value: _globalThreshold,
           min: 1,
           max: 50,
           divisions: 49,
-          label: _globalThreshold.round().toString(),
+          activeColor: colorScheme.primary,
+          inactiveColor: colorScheme.primary.withValues(alpha: 0.1),
           onChanged: (val) => setState(() => _globalThreshold = val),
         ),
       ],
@@ -371,39 +442,60 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   Widget _buildStep5() {
-    return const Column(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.check_circle, size: 100, color: Colors.green),
-        SizedBox(height: 24),
-        Text(
-          'Configuración completada.',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 20),
+        const Icon(
+          Icons.auto_awesome_rounded,
+          size: 100,
+          color: Color(0xFFC87941),
         ),
-        SizedBox(height: 8),
-        Text(
-          'Al hacer clic en Finalizar, guardaremos todos tus insumos y productos para empezar a operar.',
+        const SizedBox(height: 40),
+        const Text(
+          '¡Configuración completada!',
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Tu nueva pizzería está lista para abrir sus puertas virtuales.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.grey.shade600,
+            fontSize: 16,
+            height: 1.5,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildFooter() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        if (_currentStep > 0)
-          TextButton(onPressed: _prevPage, child: const Text('Anterior'))
-        else
-          const SizedBox.shrink(),
-        if (_currentStep < 4)
-          FilledButton(onPressed: _nextPage, child: const Text('Siguiente'))
-        else
-          FilledButton(onPressed: _finish, child: const Text('Finalizar')),
-      ],
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.all(48),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          if (_currentStep > 0)
+            TextButton(
+              onPressed: _prevPage,
+              style: TextButton.styleFrom(
+                foregroundColor: colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
+              child: const Text('Anterior'),
+            )
+          else
+            const SizedBox.shrink(),
+          FilledButton(
+            onPressed: _currentStep < 4 ? _nextPage : _finish,
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+            ),
+            child: Text(_currentStep < 4 ? 'Siguiente' : '¡Empezar!'),
+          ),
+        ],
+      ),
     );
   }
 }

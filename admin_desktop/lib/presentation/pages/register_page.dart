@@ -12,7 +12,6 @@ class RegisterPage extends ConsumerStatefulWidget {
 }
 
 class _RegisterPageState extends ConsumerState<RegisterPage> {
-  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -68,91 +67,104 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       if (next.error != null && !next.isLoading) {
         AlertUtils.showError(context, next.error!);
         ref.read(authProvider.notifier).clearError();
-      } else if (previous?.isLoading == true &&
-          next.user != null &&
-          !next.user!.emailVerified &&
-          !next.isLoading) {
-        // Success managed by router redirect, but we can show a transient hint if needed
-        // Though /verify-email will explain it better.
       }
     });
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          padding: const EdgeInsets.all(24),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Registro',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 24),
-                    TextFormField(
-                      controller: _nameController,
-                      focusNode: _nameFocusNode,
-                      decoration: const InputDecoration(
-                        labelText: 'Nombre Completo',
-                        prefixIcon: Icon(Icons.person),
-                      ),
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) {
-                        FocusScope.of(context).requestFocus(_emailFocusNode);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _emailController,
-                      focusNode: _emailFocusNode,
-                      decoration: const InputDecoration(
-                        labelText: 'Correo Electrónico',
-                        prefixIcon: Icon(Icons.email),
-                      ),
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) {
-                        FocusScope.of(context).requestFocus(_passwordFocusNode);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      focusNode: _passwordFocusNode,
-                      decoration: const InputDecoration(
-                        labelText: 'Contraseña',
-                        prefixIcon: Icon(Icons.lock),
-                      ),
-                      obscureText: true,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _submit(),
-                    ),
-                    const SizedBox(height: 24),
-                    if (authState.isLoading)
-                      const CircularProgressIndicator()
-                    else
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: _submit,
-                          child: const Text('Registrarse'),
-                        ),
-                      ),
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () {
-                        context.go('/');
-                      },
-                      child: const Text('¿Ya tienes cuenta? Inicia sesión'),
-                    ),
-                  ],
+        child: SingleChildScrollView(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 420),
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 60),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Icon(
+                  Icons.app_registration_rounded,
+                  size: 64,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.8),
                 ),
-              ),
+                const SizedBox(height: 24),
+                Text(
+                  'Crea tu cuenta',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 28,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Únete a la gestión inteligente de tu pizzería.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 48),
+
+                TextFormField(
+                  controller: _nameController,
+                  focusNode: _nameFocusNode,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre Completo',
+                    prefixIcon: Icon(Icons.person_outline_rounded),
+                  ),
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) =>
+                      FocusScope.of(context).requestFocus(_emailFocusNode),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _emailController,
+                  focusNode: _emailFocusNode,
+                  decoration: const InputDecoration(
+                    labelText: 'Correo Electrónico',
+                    prefixIcon: Icon(Icons.email_outlined),
+                  ),
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) =>
+                      FocusScope.of(context).requestFocus(_passwordFocusNode),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _passwordController,
+                  focusNode: _passwordFocusNode,
+                  decoration: const InputDecoration(
+                    labelText: 'Contraseña',
+                    prefixIcon: Icon(Icons.lock_outline_rounded),
+                  ),
+                  obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _submit(),
+                ),
+                const SizedBox(height: 32),
+
+                if (authState.isLoading)
+                  const Center(child: CircularProgressIndicator())
+                else
+                  FilledButton(
+                    onPressed: _submit,
+                    child: const Text('Comenzar Registro'),
+                  ),
+                const SizedBox(height: 24),
+                TextButton(
+                  onPressed: () => context.go('/'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                  child: const Text('¿Ya tienes cuenta? Inicia sesión'),
+                ),
+              ],
             ),
           ),
         ),

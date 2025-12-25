@@ -26,7 +26,8 @@ class AuthController extends Notifier<AuthState> {
 
     // Listen to repository auth state changes for persistent sessions
     _repository.authStateChanges.listen((user) {
-      if (state.user?.id != user?.id ||
+      if (state.isLoading ||
+          state.user?.id != user?.id ||
           state.user?.emailVerified != user?.emailVerified) {
         state = AuthState(isLoading: false, user: user);
       }
@@ -69,6 +70,20 @@ class AuthController extends Notifier<AuthState> {
     if (verified && state.user != null) {
       // If now verified, keep current user but we can trigger a state refresh
       state = AuthState(user: state.user);
+    }
+  }
+
+  Future<void> resendEmailVerification() async {
+    state = AuthState(isLoading: true, user: state.user);
+    final result = await _repository.sendEmailVerification();
+    if (result.isSuccess) {
+      state = AuthState(isLoading: false, user: state.user);
+    } else {
+      state = AuthState(
+        isLoading: false,
+        user: state.user,
+        error: result.error,
+      );
     }
   }
 

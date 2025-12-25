@@ -1,0 +1,68 @@
+{
+    // Use IntelliSense para saber los atributos posibles.
+    // Mantenga el puntero para ver las descripciones de los existentes atributos.
+    // Para más información, visite: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "admin_desktop",
+            "cwd": "admin_desktop",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "admin_desktop (profile mode)",
+            "cwd": "admin_desktop",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "admin_desktop (release mode)",
+            "cwd": "admin_desktop",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "comandera_app",
+            "cwd": "comandera_app",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "comandera_app (profile mode)",
+            "cwd": "comandera_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "comandera_app (release mode)",
+            "cwd": "comandera_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "repartidor_app",
+            "cwd": "repartidor_app",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "repartidor_app (profile mode)",
+            "cwd": "repartidor_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "repartidor_app (release mode)",
+            "cwd": "repartidor_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
