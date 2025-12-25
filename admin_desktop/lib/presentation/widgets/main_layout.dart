@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../application/providers/auth_provider.dart';
 
-class MainLayout extends StatelessWidget {
+class MainLayout extends ConsumerWidget {
   final Widget child;
   final String location;
 
   const MainLayout({super.key, required this.child, required this.location});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     int selectedIndex = 0;
     if (location.startsWith('/inventario')) {
       selectedIndex = 1;
@@ -67,6 +69,19 @@ class MainLayout extends StatelessWidget {
                 label: Text('Configuración'),
               ),
             ],
+            trailing: Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 24.0),
+                  child: IconButton(
+                    onPressed: () => ref.read(authProvider.notifier).logout(),
+                    icon: const Icon(Icons.logout, color: Colors.redAccent),
+                    tooltip: 'Cerrar Sesión',
+                  ),
+                ),
+              ),
+            ),
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(child: child),

@@ -23,7 +23,16 @@ class AuthController extends Notifier<AuthState> {
   @override
   AuthState build() {
     _repository = ref.watch(authRepositoryProvider);
-    return AuthState();
+
+    // Listen to repository auth state changes for persistent sessions
+    _repository.authStateChanges.listen((user) {
+      if (state.user?.id != user?.id ||
+          state.user?.emailVerified != user?.emailVerified) {
+        state = AuthState(isLoading: false, user: user);
+      }
+    });
+
+    return AuthState(isLoading: true);
   }
 
   Future<void> login(String email, String password) async {
@@ -40,6 +49,9 @@ class AuthController extends Notifier<AuthState> {
     state = AuthState(isLoading: true);
     final result = await _repository.register(name, email, password);
     if (result.isSuccess) {
+      // Send verification email immediately
+      await _repository.sendEmailVerification();
+      // Set the user in state so the router redirects to /verify-email
       state = AuthState(isLoading: false, user: result.value);
     } else {
       state = AuthState(isLoading: false, error: result.error);
@@ -50,6 +62,18 @@ class AuthController extends Notifier<AuthState> {
     state = AuthState(isLoading: true);
     await _repository.logout();
     state = AuthState(isLoading: false, user: null);
+  }
+
+  Future<void> checkEmailVerification() async {
+    final verified = await _repository.isEmailVerified();
+    if (verified && state.user != null) {
+      // If now verified, keep current user but we can trigger a state refresh
+      state = AuthState(user: state.user);
+    }
+  }
+
+  void clearError() {
+    state = AuthState(isLoading: false, user: state.user, error: null);
   }
 }
 

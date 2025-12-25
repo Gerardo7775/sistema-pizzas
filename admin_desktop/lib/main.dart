@@ -12,11 +12,13 @@ Future<void> main() async {
   runApp(const ProviderScope(child: AdminDesktopApp()));
 }
 
-class AdminDesktopApp extends StatelessWidget {
+class AdminDesktopApp extends ConsumerWidget {
   const AdminDesktopApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouter);
+
     return MaterialApp.router(
       title: 'Sistema Pizzería - Administración',
       debugShowCheckedModeBanner: false,
@@ -41,7 +43,7 @@ class AdminDesktopApp extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.system,
-      routerConfig: appRouter,
+      routerConfig: router,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

@@ -14,20 +14,20 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
       final user = credential.user!;
-      // For now, we assume simple mapping. You might fetch custom claims or FS doc here.
+
       return Result.success(
         Usuario(
           id: user.uid,
           nombre: user.displayName ?? 'Usuario',
           email: user.email!,
-          rol:
-              'admin', // Hardcoded for initial setup, should come from Claims/DB
+          rol: 'admin',
+          emailVerified: user.emailVerified,
         ),
       );
     } on FirebaseAuthException catch (e) {
-      return Result.failure(e.message ?? 'Error de autenticación');
+      return Result.failure(_mapFirebaseError(e.code));
     } catch (e) {
-      return Result.failure(e.toString());
+      return Result.failure('Error inesperado: ${e.toString()}');
     }
   }
 
@@ -45,12 +45,69 @@ class AuthRepositoryImpl implements AuthRepository {
       await credential.user!.updateDisplayName(name);
       final user = credential.user!;
       return Result.success(
-        Usuario(id: user.uid, nombre: name, email: email, rol: 'admin'),
+        Usuario(
+          id: user.uid,
+          nombre: name,
+          email: email,
+          rol: 'admin',
+          emailVerified: user.emailVerified,
+        ),
       );
     } on FirebaseAuthException catch (e) {
-      return Result.failure(e.message ?? 'Error de registro');
+      return Result.failure(_mapFirebaseError(e.code));
     } catch (e) {
       return Result.failure(e.toString());
+    }
+  }
+
+  @override
+  Future<Result<void>> sendEmailVerification() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user != null) {
+        await user.sendEmailVerification();
+        return Result.success(null);
+      }
+      return Result.failure('No hay un usuario autenticado');
+    } catch (e) {
+      return Result.failure(e.toString());
+    }
+  }
+
+  @override
+  Future<bool> isEmailVerified() async {
+    final user = _firebaseAuth.currentUser;
+    if (user != null) {
+      await user.reload();
+      return _firebaseAuth.currentUser!.emailVerified;
+    }
+    return false;
+  }
+
+  String _mapFirebaseError(String code) {
+    switch (code) {
+      case 'user-not-found':
+        return 'No existe un usuario con este correo electrónico.';
+      case 'wrong-password':
+        return 'Contraseña incorrecta.';
+      case 'email-already-in-use':
+        return 'Este correo electrónico ya está registrado.';
+      case 'weak-password':
+        return 'La contraseña es muy débil. Debe tener al menos 6 caracteres.';
+      case 'invalid-email':
+        return 'El formato del correo electrónico no es válido.';
+      case 'too-many-requests':
+        return 'Demasiados intentos. Por favor, intenta de nuevo más tarde.';
+      case 'network-request-failed':
+        return 'Error de conexión. Revisa tu internet.';
+      case 'user-disabled':
+        return 'Esta cuenta ha sido deshabilitada.';
+      case 'operation-not-allowed':
+        return 'La operación no está permitida.';
+      case 'invalid-credential':
+        return 'Correo o contraseña incorrectos.';
+      default:
+        return 'Ocurrió un error en el servidor. Por favor, intenta de nuevo. ($code)';
     }
   }
 
@@ -68,6 +125,21 @@ class AuthRepositoryImpl implements AuthRepository {
       nombre: user.displayName ?? 'Usuario',
       email: user.email!,
       rol: 'admin',
+      emailVerified: user.emailVerified,
     );
+  }
+
+  @override
+  Stream<Usuario?> get authStateChanges {
+    return _firebaseAuth.authStateChanges().map((user) {
+      if (user == null) return null;
+      return Usuario(
+        id: user.uid,
+        nombre: user.displayName ?? 'Usuario',
+        email: user.email!,
+        rol: 'admin',
+        emailVerified: user.emailVerified,
+      );
+    });
   }
 }

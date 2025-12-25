@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../application/providers/auth_provider.dart';
+import '../../core/utils/alert_utils.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -14,22 +15,44 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
   void _submit() async {
-    if (_formKey.currentState!.validate()) {
-      await ref
-          .read(authProvider.notifier)
-          .login(_emailController.text, _passwordController.text);
-      // Navigation is handled by router listener or state change,
-      // but for simplicity we can check state here too or let the router redirect
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      AlertUtils.showError(context, 'Por favor, completa todos los campos.');
+      return;
     }
+
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      AlertUtils.showError(
+        context,
+        'El formato del correo electrónico es inválido.',
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      AlertUtils.showError(
+        context,
+        'La contraseña debe tener al menos 6 caracteres.',
+      );
+      return;
+    }
+
+    await ref.read(authProvider.notifier).login(email, password);
   }
 
   @override
@@ -40,9 +63,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     // but Router redirection is cleaner for success.
     ref.listen(authProvider, (previous, next) {
       if (next.error != null && !next.isLoading) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(next.error!)));
+        AlertUtils.showError(context, next.error!);
+        // Clear error in provider so it doesn't show up again on rebuild
+        ref.read(authProvider.notifier).clearError();
       }
     });
 
@@ -66,23 +89,27 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     const SizedBox(height: 24),
                     TextFormField(
                       controller: _emailController,
+                      focusNode: _emailFocusNode,
                       decoration: const InputDecoration(
                         labelText: 'Correo Electrónico',
                         prefixIcon: Icon(Icons.email),
                       ),
-                      validator: (value) =>
-                          value!.isEmpty ? 'Campo requerido' : null,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(_passwordFocusNode);
+                      },
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _passwordController,
+                      focusNode: _passwordFocusNode,
                       decoration: const InputDecoration(
                         labelText: 'Contraseña',
                         prefixIcon: Icon(Icons.lock),
                       ),
                       obscureText: true,
-                      validator: (value) =>
-                          value!.isEmpty ? 'Campo requerido' : null,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => _submit(),
                     ),
                     const SizedBox(height: 24),
                     if (authState.isLoading)
