@@ -1,0 +1,1 @@
+{"version":3,"file":"configuracion.js","sourceRoot":"","sources":["../../../src/domain/entities/configuracion.ts"],"names":[],"mappings":";;;AAAA,MAAa,aAAa;IACtB,YACoB,EAAU,EAAE,6BAA6B;IAClD,eAAwB,EACxB,eAAuB,EAAE,gDAAgD;IACzE,SAAiB,KAAK;QAHb,OAAE,GAAF,EAAE,CAAQ;QACnB,oBAAe,GAAf,eAAe,CAAS;QACxB,oBAAe,GAAf,eAAe,CAAQ;QACvB,WAAM,GAAN,MAAM,CAAgB;IAC7B,CAAC;CACR;AAPD,sCAOC"}

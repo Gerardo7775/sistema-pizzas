@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
 import { z } from 'zod';
 import { FirestoreInventoryRepository } from '../../../infrastructure/repositories/firestore/firestore_inventory_repository';
 import { GestionarInventario } from '../../../application/usecases/gestionar_inventario';
@@ -23,35 +23,35 @@ const updateInsumoSchema = z.object({
     activo: z.boolean().optional()
 });
 
-export const crearInsumo = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
-    // if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'User must be logged in.');
+export const crearInsumo = onCall(async (request: CallableRequest) => {
+    // if (!request.auth) throw new HttpsError('unauthenticated', 'User must be logged in.');
     // TODO: Add role check for admin
 
     try {
-        const parsed = createInsumoSchema.parse(data);
+        const parsed = createInsumoSchema.parse(request.data);
         const id = await gestionarInventario.crearInsumo(parsed);
         return { success: true, id };
     } catch (e: any) {
         console.error(e);
-        throw new functions.https.HttpsError('invalid-argument', e.message);
+        throw new HttpsError('invalid-argument', e.message);
     }
 });
 
-export const actualizarInsumo = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
+export const actualizarInsumo = onCall(async (request: CallableRequest) => {
     try {
-        const parsed = updateInsumoSchema.parse(data);
+        const parsed = updateInsumoSchema.parse(request.data);
         await gestionarInventario.actualizarInsumo(parsed.id, parsed);
         return { success: true };
     } catch (e: any) {
-        throw new functions.https.HttpsError('internal', e.message);
+        throw new HttpsError('internal', e.message);
     }
 });
 
-export const listarInsumos = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
+export const listarInsumos = onCall(async (request: CallableRequest) => {
     try {
         const insumos = await gestionarInventario.listarInsumos();
         return { insumos };
     } catch (e: any) {
-        throw new functions.https.HttpsError('internal', e.message);
+        throw new HttpsError('internal', e.message);
     }
 });

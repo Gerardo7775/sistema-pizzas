@@ -16,12 +16,19 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
   int _secondsRemaining = 0;
   Timer? _timer;
 
+  @override
+  void initState() {
+    super.initState();
+    // Start timer immediately when landing on this page
+    _startTimer();
+  }
+
   void _startTimer() {
     setState(() => _secondsRemaining = 15);
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsRemaining > 0) {
-        setState(() => _secondsRemaining--);
+        if (mounted) setState(() => _secondsRemaining--);
       } else {
         _timer?.cancel();
       }

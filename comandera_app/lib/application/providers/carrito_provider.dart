@@ -5,10 +5,11 @@ import '../../core/entities/cliente.dart';
 import '../../core/entities/pedido.dart';
 import '../../core/entities/producto.dart';
 import '../../core/repositories/pedidos_repository.dart';
-import '../../data/repositories/pedidos_repository_mock.dart';
+import '../../data/datasources/remote_datasource.dart';
+import '../../data/repositories/pedidos_repository_impl.dart';
 
 final pedidosRepositoryProvider = Provider<PedidosRepository>((ref) {
-  return PedidosRepositoryMock();
+  return PedidosRepositoryImpl(FirebaseFunctionsDatasource());
 });
 
 class CarritoState {

@@ -23,6 +23,28 @@ class DetallePedido extends Equatable {
 
   double get subtotal => precioUnitario * cantidad;
 
+  factory DetallePedido.fromJson(Map<String, dynamic> json) {
+    return DetallePedido(
+      id: json['id'],
+      productoId: json['productoId'],
+      nombreProducto: json['nombreProducto'],
+      precioUnitario: (json['precioUnitario'] as num).toDouble(),
+      cantidad: json['cantidad'],
+      especialidad: json['especialidad'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'productoId': productoId,
+      'nombreProducto': nombreProducto,
+      'precioUnitario': precioUnitario,
+      'cantidad': cantidad,
+      'especialidad': especialidad,
+    };
+  }
+
   @override
   List<Object?> get props => [
     id,
@@ -36,7 +58,7 @@ class DetallePedido extends Equatable {
 
 class Pedido extends Equatable {
   final String id;
-  final String canal; // 'WhatsApp', 'Llamada', 'Mostrador'
+  final String canal;
   final PedidoEstado estado;
   final Cliente cliente;
   final List<DetallePedido> detalles;
@@ -56,6 +78,41 @@ class Pedido extends Equatable {
     this.horaEstimadaEntrega,
     this.repartidorId,
   });
+
+  factory Pedido.fromJson(Map<String, dynamic> json) {
+    return Pedido(
+      id: json['id'],
+      canal: json['canal'],
+      estado: PedidoEstado.values.firstWhere(
+        (e) => e.name == json['estado'],
+        orElse: () => PedidoEstado.capturado,
+      ),
+      cliente: Cliente.fromJson(Map<String, dynamic>.from(json['cliente'])),
+      detalles: (json['detalles'] as List)
+          .map((e) => DetallePedido.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      total: (json['total'] as num).toDouble(),
+      fechaRegistro: DateTime.parse(json['fechaRegistro']),
+      horaEstimadaEntrega: json['horaEstimadaEntrega'] != null
+          ? DateTime.parse(json['horaEstimadaEntrega'])
+          : null,
+      repartidorId: json['repartidorId'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'canal': canal,
+      'estado': estado.name,
+      'cliente': cliente.toJson(),
+      'detalles': detalles.map((e) => e.toJson()).toList(),
+      'total': total,
+      'fechaRegistro': fechaRegistro.toIso8601String(),
+      'horaEstimadaEntrega': horaEstimadaEntrega?.toIso8601String(),
+      'repartidorId': repartidorId,
+    };
+  }
 
   Pedido copyWith({
     PedidoEstado? estado,

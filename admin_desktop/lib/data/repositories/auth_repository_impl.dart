@@ -105,9 +105,9 @@ class AuthRepositoryImpl implements AuthRepository {
       case 'operation-not-allowed':
         return 'La operación no está permitida.';
       case 'invalid-credential':
-        return 'Correo o contraseña incorrectos.';
+        return 'Correo o contraseña incorrectos. Si no tienes cuenta, regístrate.';
       default:
-        return 'Ocurrió un error en el servidor. Por favor, intenta de nuevo. ($code)';
+        return 'Ocurrió un error en el servidor ($code). Por favor, intenta de nuevo.';
     }
   }
 

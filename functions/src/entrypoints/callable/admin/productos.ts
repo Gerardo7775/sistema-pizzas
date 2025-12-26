@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
 import { z } from 'zod';
 import { FirestoreProductRepository } from '../../../infrastructure/repositories/firestore/firestore_product_repository';
 import { GestionarProductos } from '../../../application/usecases/gestionar_productos';
@@ -18,21 +18,21 @@ const createProductoSchema = z.object({
     receta: z.array(recetaItemSchema)
 });
 
-export const crearProducto = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
+export const crearProducto = onCall(async (request: CallableRequest) => {
     try {
-        const parsed = createProductoSchema.parse(data);
+        const parsed = createProductoSchema.parse(request.data);
         const id = await gestionarProductos.crearProducto(parsed);
         return { success: true, id };
     } catch (e: any) {
-        throw new functions.https.HttpsError('invalid-argument', e.message);
+        throw new HttpsError('invalid-argument', e.message);
     }
 });
 
-export const listarProductos = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
+export const listarProductos = onCall(async (request: CallableRequest) => {
     try {
         const productos = await gestionarProductos.listarProductos();
         return { productos };
     } catch (e: any) {
-        throw new functions.https.HttpsError('internal', e.message);
+        throw new HttpsError('internal', e.message);
     }
 });

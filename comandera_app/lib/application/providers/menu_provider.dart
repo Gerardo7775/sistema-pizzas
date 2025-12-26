@@ -1,10 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/entities/producto.dart';
 import '../../core/repositories/productos_repository.dart';
-import '../../data/repositories/productos_repository_mock.dart';
+import '../../data/datasources/remote_datasource.dart';
+import '../../data/repositories/productos_repository_impl.dart';
 
 final productosRepositoryProvider = Provider<ProductosRepository>((ref) {
-  return ProductosRepositoryMock();
+  return ProductosRepositoryImpl(FirebaseFunctionsDatasource());
 });
 
 class ProductosMenuState {

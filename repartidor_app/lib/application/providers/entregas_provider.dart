@@ -1,10 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/entities/entrega.dart';
 import '../../core/repositories/entregas_repository.dart';
-import '../../data/repositories/entregas_repository_mock.dart';
+import '../../data/datasources/remote_datasource.dart';
+import '../../data/repositories/entregas_repository_impl.dart';
 
 final entregasRepositoryProvider = Provider<EntregasRepository>((ref) {
-  return EntregasRepositoryMock();
+  return EntregasRepositoryImpl(FirebaseFunctionsDatasource());
 });
 
 class MisEntregasState {

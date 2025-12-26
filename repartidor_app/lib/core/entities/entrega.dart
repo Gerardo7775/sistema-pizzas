@@ -27,6 +27,43 @@ class Entrega extends Equatable {
     this.evidenciaUrl,
   });
 
+  factory Entrega.fromJson(Map<String, dynamic> json) {
+    return Entrega(
+      id: json['id'],
+      pedidoId: json['pedidoId'],
+      nombreCliente: json['nombreCliente'],
+      direccionCliente: json['direccionCliente'],
+      telefonoCliente: json['telefonoCliente'],
+      totalAPagar: (json['totalAPagar'] as num).toDouble(),
+      estado: EntregaEstado.values.firstWhere(
+        (e) => e.name == json['estado'],
+        orElse: () => EntregaEstado.asignado,
+      ),
+      horaSalida: json['horaSalida'] != null
+          ? DateTime.parse(json['horaSalida'])
+          : null,
+      horaLlegada: json['horaLlegada'] != null
+          ? DateTime.parse(json['horaLlegada'])
+          : null,
+      evidenciaUrl: json['evidenciaUrl'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'pedidoId': pedidoId,
+      'nombreCliente': nombreCliente,
+      'direccionCliente': direccionCliente,
+      'telefonoCliente': telefonoCliente,
+      'totalAPagar': totalAPagar,
+      'estado': estado.name,
+      'horaSalida': horaSalida?.toIso8601String(),
+      'horaLlegada': horaLlegada?.toIso8601String(),
+      'evidenciaUrl': evidenciaUrl,
+    };
+  }
+
   Entrega copyWith({
     EntregaEstado? estado,
     DateTime? horaSalida,

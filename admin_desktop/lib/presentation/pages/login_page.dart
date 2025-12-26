@@ -17,6 +17,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
 
+  bool _obscurePassword = true;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -43,20 +45,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
-    if (password.length < 6) {
-      AlertUtils.showError(
-        context,
-        'La contraseña debe tener al menos 6 caracteres.',
-      );
-      return;
-    }
-
     await ref.read(authProvider.notifier).login(email, password);
   }
 
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final colorScheme = Theme.of(context).colorScheme;
 
     ref.listen(authProvider, (previous, next) {
       if (next.error != null && !next.isLoading) {
@@ -66,7 +61,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: colorScheme.surface,
       body: Center(
         child: SingleChildScrollView(
           child: Container(
@@ -80,9 +75,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 Icon(
                   Icons.local_pizza_rounded,
                   size: 64,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.8),
+                  color: colorScheme.primary.withValues(alpha: 0.8),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -98,9 +91,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   'Gestiona tu pizzería con facilidad.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 16,
                   ),
                 ),
@@ -112,6 +103,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   focusNode: _emailFocusNode,
                   decoration: const InputDecoration(
                     labelText: 'Correo Electrónico',
+                    hintText: 'ejemplo@correo.com',
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
                   textInputAction: TextInputAction.next,
@@ -122,11 +114,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 TextFormField(
                   controller: _passwordController,
                   focusNode: _passwordFocusNode,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Contraseña',
-                    prefixIcon: Icon(Icons.lock_outline_rounded),
+                    hintText: 'Tu contraseña secreta',
+                    prefixIcon: const Icon(Icons.lock_outline_rounded),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off_rounded
+                            : Icons.visibility_rounded,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
                   ),
-                  obscureText: true,
+                  obscureText: _obscurePassword,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _submit(),
                 ),
@@ -144,9 +146,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 TextButton(
                   onPressed: () => context.go('/register'),
                   style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    foregroundColor: colorScheme.onSurface.withValues(
+                      alpha: 0.7,
+                    ),
                   ),
                   child: const Text('¿Eres nuevo? Crea una cuenta'),
                 ),
